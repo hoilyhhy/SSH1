@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:component-scan base-package="hhy">
+        <!-- 扫描除@controller的注解，自动实例化为bean并将其添加到上下文中-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:exclude-filter>
+    </context:component-scan>
+
+    <!-- 加载配置文件 -->
+  <context:property-placeholder location="classpath:hibernate.properties"/>
+
+    <!--2.将SessionFactory的创建交给Spring来完成（SessionFactory的创建时由config.configure（）.buildSessionFactory()方法来获取的，故需要对hibernate.cfg.xml进行配置加载，而不是采用代码的形式进行加载）究其根源还是要获取数据库的连接来对数据库进行操作，所以要配置dataSoure属性的值；-->
+    <!-- 创建SessionFactory对象，， -->
+
+    <!-- 配置数据源（未配置连接池）
+  DriverManagerDataSource:在每一个连接请求时新建一个连接。
+  SingleConnectionDataSource:在每一个连接请求时都返回同一连接。  -->
+   <!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>-->
+
+    <!-- 配置c3p0连接池(连接池中的连接需要配置事务后才能正常提交) -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!-- 连接关闭时默认将所有未提交的操作回滚。默认为false -->
+        <property name="autoCommitOnClose" value="true"/>
+
+        <!-- 连接池中保留的最小连接数-->
+        <property name="minPoolSize" value="2"/>
+
+        <!-- 连接池中保留的最大连接数。默认为15 -->
+        <property name="maxPoolSize" value="15"/>
+
+        <!-- 初始化时获取的连接数，取值应在minPoolSize与maxPoolSize之间。默认为3 -->
+        <property name="initialPoolSize" value="3"/>
+
+        <!-- 最大空闲时间，超过空闲时间的连接将被丢弃。为0或负数则永不丢弃。默认为0秒 -->
+        <property name="maxIdleTime" value="60"/>
+
+        <!-- 当连接池中的连接用完时，C3P0一次性创建新连接的数目。默认为3 -->
+        <property name="acquireIncrement" value="3"/>
+
+        <!-- 定义在从数据库获取新连接失败后重复尝试获取的次数，默认为30 -->
+        <property name="acquireRetryAttempts" value="3"/>
+
+        <!-- 当连接池用完时客户端调用getConnection()后等待获取新连接的时间，超时后将抛出SQLException，如设为0则无限期等待。单位毫秒，默认为0 -->
+        <property name="checkoutTimeout" value="10000"/>
+    </bean>
+
+
+    <!--  把hibernate配置文件注入给了LocalSessionFactoryBean，也可以把一个数据源dataSource注入给它)所以为了完成spring的依赖注入,Spring提供了LocalSessionFactoryBean这个类.从而创建SessionFactory对象 -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+       <!-- <property name="configLocation" value="hibernate.cfg.xml"></property> 或下面那句-->
+        <property name="dataSource" ref="dataSource" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+                <prop key="hibernate.cache.use_second_level_cache">${hibernate.cache.use_second_level_cache}</prop>
+                <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+
+            </props>
+        </property>
+
+        <!--自动扫描注解的方式配置hibernate 类文件-->
+        <property name="packagesToScan">
+            <list>
+                <value>hhy.entity</value>
+            </list>
+        </property>
+
+        <!-- hibernate.hbm.xml映射文件的配置-->
+       <!-- <property name="mappingResources">
+            <list>
+                <value>entity/Emp.hbm.xml</value>
+            </list>
+        </property>-->
+
+    </bean>
+
+    <!-- 配置事务管理器类(不同的平台有不同的实现类)   用Hibernate技术连接时，事物管理器类为HibernateTransactionManager，且传入的参数为sessionFactory
+    注：用JDBC技术连接时，事务管理器类为DataSourceTransactionManager;
+    -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 使用annotation定义事务 -->
+   <tx:annotation-driven transaction-manager="transactionManager" />
+
+
+    <!--&lt;!&ndash; 通知 &ndash;&gt;
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+        &lt;!&ndash; 传播行为 &ndash;&gt;
+        <tx:method name="save*" propagation="REQUIRED"/>
+        <tx:method name="delete*" propagation="REQUIRED"/>
+        <tx:method name="insert*" propagation="REQUIRED"/>
+        <tx:method name="update*" propagation="REQUIRED"/>
+        <tx:method name="list*" propagation="SUPPORTS" read-only="true"/>
+        &lt;!&ndash;<tx:method name="get*" propagation="SUPPORTS" read-only="true"/>  &ndash;&gt;
+    </tx:attributes>
+    </tx:advice>-->
+</beans>
