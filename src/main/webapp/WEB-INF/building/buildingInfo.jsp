@@ -18,7 +18,7 @@
             <td><a <%--onclick="newUser();"--%> data-toggle="modal" data-target="#myModal" data-type="add">新增</a></td>
         </tr>
         <tr>
-            <th style="display:none;">uid</th>
+            <th style="display:none;">id</th>
             <th>序号</th>
             <th>房屋编号</th>
             <th>地址</th>
@@ -28,14 +28,14 @@
         </tr>
        <c:forEach var="bd" items="${builds}" varStatus="status">
            <tr>
-            <td style="display:none;">${bd.bid}</td>
+            <td style="display:none;">${bd.id}</td>
             <td>${status.index+1}</td>
             <td>${bd.bno}</td>
             <td>${bd.addr}</td>
             <td>${bd.floors}</td>
             <td>${bd.type}</td>
-            <td><a  data-toggle="modal" data-target="#myModal" data-uid="${bd.bid}" data-type="update">修改</a>
-               |<a onclick="deleteUser(${bd.bid})">删除</a>
+            <td><a  data-toggle="modal" data-target="#myModal" data-uid="${bd.id}" data-type="update">修改</a>
+               |<a onclick="deleteUser(${bd.id})">删除</a>
            </td>
 
            </tr>
@@ -75,7 +75,7 @@
                             <input type="text" class="form-control" id="type" name="type" placeholder="类型">
                         </div>
                     </div>
-                    <input type="hidden" id="bid" name="bid" value="">
+                    <input type="hidden" id="id" name="id" value="">
                     <input type="submit" class="btn btn-primary"  value="保存">
                 </form>
             </div>

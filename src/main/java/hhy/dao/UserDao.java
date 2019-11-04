@@ -74,7 +74,7 @@ public class UserDao /*extends HibernateDaoSupport*/{
 
 
     public UserEntity userInfo(int uid){
-        Query query = sessionFactory.getCurrentSession().createQuery("from UserEntity where uid=?");
+        Query query = sessionFactory.getCurrentSession().createQuery("from UserEntity where id=?");
         query.setParameter(0,uid);
         return (UserEntity) query.uniqueResult();
     }
@@ -90,7 +90,7 @@ public class UserDao /*extends HibernateDaoSupport*/{
     }
 
     public int deleteUser(int uid) {
-        Query query = sessionFactory.getCurrentSession().createQuery("delete UserEntity where uid=?");
+        Query query = sessionFactory.getCurrentSession().createQuery("delete UserEntity where id=?");
         query.setInteger(0,uid);
        return  query.executeUpdate();
 
