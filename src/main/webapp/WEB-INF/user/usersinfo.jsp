@@ -86,13 +86,13 @@
                             <input type="text" class="form-control" id="type" name="type" placeholder="用户类型">
                         </div>
                     </div>
-                    <div class="form-group" id="addBuild"><%----%>
+                    <div class="form-group" id="addBuild"><%--hhyq1-1104,这里的id，save时不能提交，update时必须提交（否则没有id，无法更新或报错，报违反了 UNIQUE KEY ）。实际怎么操作好？--%>
 
                         <%--<div class="col-sm-10" >--%>
                            <%--<input type="checkbox" class="col-sm-2" name="buildings[0].id" value="">--%>
                       <%--  </div>--%>
                     </div>
-                   <%-- <input type="hidden" id="id" name="id" value="">--%>
+                  <input type="hidden" id="id" >
                 </form>
             </div>
             <div class="modal-footer">
@@ -147,9 +147,10 @@
                         $("#loginname").val(data.loginname);
                         modal.find('#password').val(data.password);
                         modal.find('#type').val(data.type);
+                        modal.find("#id").attr("name","id").val(data.id);//hhyq1,更新，加上name
                         for(var i=0;i<data.bid.length;i++){
                             modal.find("#addBuild input[value='"+data.bid[i]+"']").attr("checked", true);
-                            console.log(data.bid[i]);
+                            console.log(data.bid[i]);//hhyq2-1104怎么打印不出来？
                         }
 
                     }
@@ -161,6 +162,7 @@
             $("#loginname").val("");
             modal.find('#password').val("");
             modal.find('#type').val("");
+            modal.find("#id").removeAttr("name");//hhyq1,新增，移除name
             $("#addBuild").html("");
            $.ajax({
                 url:"/getBuildsJson",
@@ -171,7 +173,7 @@
                 success:function(data){
                    var appendhtml = "";
                    for(var i = 0 ;i < data.length ; i++){
-                       appendhtml +=  "<input type=\'checkbox\' class=\"col-sm-2\" name=\"buildings["+i+"].id\" value=\""+data[i].id+"\"><span class=\"col-sm-4\">编号:"+data[i].bno+"</span></br>";
+                       appendhtml +=  "<input type=\'checkbox\' class=\"col-sm-2\" name=\"buildings["+i+"].id\" value=\""+data[i].id+"\"><span class=\"col-sm-4\">编号:"+data[i].bno+"</span></br>";//org.hibernate.TransientObjectException: object references an unsaved transient instance - save the transient instance before flushing: hhy.entity.BuildingEntit,直接保存最下面一个checkbox的报错，hhyq3-1104
                    }
                      $("#addBuild").append(
                          "<label  class=\"col-sm-2 control-label\" >拥有房屋</label><div class=\"col-sm-10\">"+appendhtml+"</div>"

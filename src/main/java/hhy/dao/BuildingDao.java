@@ -34,4 +34,13 @@ public class BuildingDao extends HibernateDaoSupport {
     public BuildingEntity getBuild(int id){
         return getHibernateTemplate().get(BuildingEntity.class,id);
     }
+
+    public boolean checkbno(String bno){
+        boolean rs = true;//存在
+        List<BuildingEntity> Buildings =  (List<BuildingEntity>)getHibernateTemplate().find("from BuildingEntity where bno="+bno);
+        if(Buildings.size()<= 0){
+            rs = false;
+        }
+        return rs;
+    }
 }

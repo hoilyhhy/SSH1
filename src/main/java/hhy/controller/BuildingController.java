@@ -54,5 +54,10 @@ public class BuildingController {
         return buildingService.getBuild(id);
     }
 
+    @RequestMapping(value = "/checkbno")
+    @ResponseBody
+    public boolean checkbno(String bno){
+        return buildingService.checkbno(bno);
+    }
 
 }

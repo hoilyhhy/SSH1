@@ -54,7 +54,7 @@
                     <div class="form-group">
                         <label for="bno" class="col-sm-2 control-label">房屋编号</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="bno" name="bno" onblur="checkloginname()" placeholder="房屋编号" value="">
+                            <input type="text" class="form-control" id="bno" name="bno" onblur="checkbno()" placeholder="房屋编号" value="">
                         </div>
                     </div>
                     <div class="form-group">
@@ -110,8 +110,25 @@
         })
     }
 
-    function checkloginname(){
-        alert("1");
+    function checkbno(){
+       $.ajax({
+           url:"checkbno",
+           type:"post",
+           dataType:"text",
+           data:{
+               "bno":$("#bno").val()
+           },
+           success:function(data){
+              if(data == "true"){
+                  alert("已存在");
+                  $("#bno").val("");
+              }
+           },
+           error:function (data) {
+               alert("请联系管理员");
+           }
+
+       })
 
     }
 </script>

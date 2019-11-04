@@ -80,12 +80,6 @@ public class UserDao /*extends HibernateDaoSupport*/{
     }
 
     public void updateuserinfo(UserEntity userEntity){
-        /*if(userEntity.getUid() >0) {
-            sessionFactory.getCurrentSession().update(userEntity);
-        }else{
-           // userEntity.setUid(null);
-            sessionFactory.getCurrentSession().save(userEntity);
-        }*/
         sessionFactory.getCurrentSession().saveOrUpdate(userEntity);
     }
 
@@ -97,7 +91,7 @@ public class UserDao /*extends HibernateDaoSupport*/{
     }
 
     public boolean checkloginname(String loginname) {
-       boolean re = true;
+       boolean re = true;//存在
         Query query =sessionFactory.getCurrentSession().createQuery("from UserEntity where loginname=?");
         query.setParameter(0,loginname);
         if(query.uniqueResult() == null){

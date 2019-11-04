@@ -27,4 +27,8 @@ public class BuildingService {
     public BuildingEntity getBuild(int id){
         return bDao.getBuild(id);
     }
+
+    public boolean checkbno(String bno){
+        return bDao.checkbno(bno);
+    }
 }
